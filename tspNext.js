@@ -5,14 +5,14 @@ Christofides Algorithm Implementation
 */
 
 const csv = require('csv-parser');
-var munkres = require('munkres-js');
 const fs = require('fs');
+const blossom = require('edmonds-blossom');
 
 // Parse CSV File into an array of objects
 function readFile () {
   return new Promise((resolve, reject)=> {
     let cities = [];
-    fs.createReadStream('cities_medium.csv')
+    fs.createReadStream('cities_all.csv')
       .on('error', (err) => {
         reject(err);
       })
@@ -154,36 +154,39 @@ function findOddVertexes (mstree) {
 }
 
 function findPerfectMatching (graph, odd_vertexes, mstree) {
-  let munkresArray = [];
+  let blossomArray = [];
   odd_vertexes.forEach((vertex) => {
-    let arr = []
     odd_vertexes.forEach((ver) => {
-      if (ver === vertex) {
-        arr.push(Number.MAX_SAFE_INTEGER);
-      } else {
-        arr.push(graph.AdjList.get(vertex).find((node) => node.node === ver).weight)
+      if (vertex !== ver) {
+        let arr = []
+        weight = Number.MAX_SAFE_INTEGER - graph.AdjList.get(vertex).find((node) => node.node === ver).weight;
+        arr = [vertex, ver, weight];
+        blossomArray.push(arr);
       }
     })
-    munkresArray.push(arr);
   })
-  let result = munkres(munkresArray);
+
+  let result = blossom(blossomArray);
+  let formattedResult = [];
+  result.forEach((num, index) => {
+    if (num !== -1) formattedResult.push([index, num]);
+  })
 
   // Remove duplicate array from result
   let hash = {};
   let filteredResult = [];
-  for (var i = 0, l = result.length; i < l; i++) {
-    var key = result[i].sort().join('|');
+  for (var i = 0, l = formattedResult.length; i < l; i++) {
+    var key = formattedResult[i].sort().join('|');
     if (!hash[key]) {
-      filteredResult.push(result[i]);
+      filteredResult.push(formattedResult[i]);
       hash[key] = 'found';
     }
   }
 
   filteredResult.forEach((pair) => {
-    let n1 = odd_vertexes[pair[0]]
-    let n2 = odd_vertexes[pair[1]]
-    mstree.addEdge(n1, n2, munkresArray[pair[0]][pair[1]]);
+    mstree.addEdge(pair[0], pair[1], blossomArray[pair[0]][pair[1]]);
   })
+
   return mstree;
 }
 
@@ -200,11 +203,8 @@ function find_eulerian_tour (matched_tree) {
   let cycle = [];
   while (convert_graph(graph).length > 0) {
     let current_vertex = vertexTracker;
-    // console.log(graph);
-    // console.log(current_vertex);
     for (let vertex of graph[current_vertex]) {
       vertexTracker = vertex;
-      // console.log(vertexTracker);
       graph[current_vertex].splice(graph[current_vertex].indexOf(vertexTracker), 1);
       graph[vertexTracker].splice(graph[vertexTracker].indexOf(current_vertex), 1);
 
@@ -485,7 +485,6 @@ class Graph {
   readFile().then((data) => {
     let cities = data.filter(city => Object.keys(city).length !== 0);
     christofides(cities);
-
   }).catch((err) => {
     console.log(err);
   })

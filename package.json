@@ -1,12 +1,11 @@
 {
-  "name": "coding_challenge",
+  "name": "TravelingSalesMan",
   "version": "1.0.0",
   "description": "",
-  "main": "ant.js",
+  "main": "tsp.js",
   "dependencies": {
     "csv-parser": "^2.3.1",
-    "hungarian-on3": "^0.3.1",
-    "munkres-js": "^1.2.2"
+    "edmonds-blossom": "^1.0.0"
   },
   "devDependencies": {},
   "scripts": {
