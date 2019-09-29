@@ -1,5 +1,3 @@
-// UrbanLogiq Coding Challenge
-
 /*
 Initial thoughts:
 1. Traveling salesman problem
@@ -15,7 +13,7 @@ const fs = require('fs');
 function readFile () {
   return new Promise((resolve, reject)=> {
     let cities = [];
-    fs.createReadStream('cities_all.csv')
+    fs.createReadStream('csv/cities_all.csv')
       .on('error', (err) => {
         reject(err);
       })
