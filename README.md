@@ -1,5 +1,5 @@
 # TravelingSalesMan
 
-npm install 
+npm install
 
-node tsp.js
+node christofides.js
