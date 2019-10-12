@@ -15,8 +15,8 @@ const PriorityQueue = require('./PriorityQueue');
 const UnionFind = require('./UnionFind');
 
 // Parse CSV File into an array of objects
-function readFile () {
-  return new Promise((resolve, reject)=> {
+function readFile() {
+  return new Promise((resolve, reject) => {
     let cities = [];
     fs.createReadStream('csv/cities_all.csv')
       .on('error', (err) => {
@@ -38,12 +38,12 @@ function distanceBetweenPoints(lat1, lon1, lat2, lon2) {
   const radius = 6371e3; // Earth's radius
   const lat1Radians = degreesToRadians(lat1);
   const lat2Radians = degreesToRadians(lat2);
-  const latDifRadians = degreesToRadians(lat2-lat1);
-  const lonDifRadians = degreesToRadians(lon2-lon1);
+  const latDifRadians = degreesToRadians(lat2 - lat1);
+  const lonDifRadians = degreesToRadians(lon2 - lon1);
 
-  const cordLength = Math.sin(latDifRadians/2) * Math.sin(latDifRadians/2) +
-            Math.cos(lat1Radians) * Math.cos(lat2Radians) *
-            Math.sin(lonDifRadians/2) * Math.sin(lonDifRadians/2);
+  const cordLength = Math.sin(latDifRadians / 2) * Math.sin(latDifRadians / 2) +
+    Math.cos(lat1Radians) * Math.cos(lat2Radians) *
+    Math.sin(lonDifRadians / 2) * Math.sin(lonDifRadians / 2);
   const angularDistance = 2 * Math.atan2(Math.sqrt(cordLength), Math.sqrt(1 - cordLength));
 
   return radius * angularDistance;
@@ -62,7 +62,7 @@ function displayInformation(data, route) {
 }
 
 // Takes in array of latitude and longitude and adds points to graph
-function buildGraph (data) {
+function buildGraph(data) {
   let graph = new Graph();
   for (let i = 0; i < data.length; i++) {
     // Adds node to graph
@@ -79,7 +79,7 @@ function buildGraph (data) {
 
 // Takes in a graph and finds minimum spanning tree using Kruskal's algorithm
 // Runs in O(logV)
-function minimumSpanningTree (graph) {
+function minimumSpanningTree(graph) {
   // Minimum spanning tree with be a new graph
   const MST = new Graph();
   // Add nodes to graph
@@ -110,12 +110,12 @@ function minimumSpanningTree (graph) {
 }
 
 // Find all odd degree vertexes in the minimum spanning stree
-function findOddVertexes (mstree) {
+function findOddVertexes(mstree) {
   let oddIndexes = []
   // Cycles through minimum spanning tree
   mstree.AdjList.forEach((node, index) => {
     // If there are an odd amount of neighbours add it to the array
-    if(node.length % 2 === 1) {
+    if (node.length % 2 === 1) {
       oddIndexes.push(index);
     }
   })
@@ -123,7 +123,7 @@ function findOddVertexes (mstree) {
   return oddIndexes;
 }
 
-function findPerfectMatching (graph, odd_vertexes, mstree) {
+function findPerfectMatching(graph, odd_vertexes, mstree) {
   let blossomArray = [];
   odd_vertexes.forEach((vertex) => {
     odd_vertexes.forEach((ver) => {
@@ -160,7 +160,7 @@ function findPerfectMatching (graph, odd_vertexes, mstree) {
   return mstree;
 }
 
-function findEulerianTour (matched_tree) {
+function findEulerianTour(matched_tree) {
   let graph = {};
   matched_tree.getEdges().forEach((edges, index) => {
     graph[index] = edges.reduce((acc, edge) => {
@@ -207,7 +207,7 @@ function is_connected(graph) {
 
   tracker[start_node] = 0;
   let arr = [start_node];
-  while(arr.length !== 0) {
+  while (arr.length !== 0) {
     let node = arr.pop();
     for (let i of graph[node]) {
       if (tracker[i] === 1) {
@@ -230,7 +230,7 @@ function convert_graph(tree) {
   return graph;
 }
 
-function is_valid_edge (matched_tree, u, v) {
+function is_valid_edge(matched_tree, u, v) {
   let neighbours = matched_tree.getEdges()[u];
   // If v is the only adjacent vertex of u
   if (neighbours.length === 1) return true;
@@ -249,7 +249,7 @@ function is_valid_edge (matched_tree, u, v) {
   return count1 <= count2;
 }
 
-function dfs_count (matched_tree, v, visited) {
+function dfs_count(matched_tree, v, visited) {
   let count = 1;
   visited[v] = true;
 
@@ -262,7 +262,7 @@ function dfs_count (matched_tree, v, visited) {
   return count;
 }
 
-function generateHamiltonianPath (nodes, list, data, tour) {
+function generateHamiltonianPath(nodes, list, data, tour) {
   // Current index
   let previous = 0;
   // Current path will start at index 0
@@ -302,7 +302,10 @@ function generateHamiltonianPath (nodes, list, data, tour) {
   // Circle path back to the beginning
   path.push(path[0]);
   // Display information
-  displayInformation(data, {path, distance});
+  displayInformation(data, {
+    path,
+    distance
+  });
 }
 
 // Main function to run Christofides Algorithm
@@ -357,7 +360,7 @@ function run(data) {
   generateHamiltonianPath(perfect_matching_edges.nodes, graph.AdjList, data, eulerian_tour);
 }
 
-(function() {
+(function () {
   readFile().then((data) => {
     // Filter empty objects
     let cities = data.filter(city => Object.keys(city).length !== 0);
